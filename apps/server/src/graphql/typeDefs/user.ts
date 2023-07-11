@@ -1,19 +1,19 @@
-const { gql } = require('apollo-server-express');
+import { gql } from 'apollo-server-express';
 
 const typeDefs = gql`
   type User {
     id: String!
     username: String
   }
-  type query {
+  type Query {
     searchUsers(username: String): [User]
   }
   type Mutation {
-    createUser(username: String): createUsernameResponse!
+    createUsername(username: String): CreateUsernameResponse
   }
 
-  type createUsernameResponse {
-    success: Boolean!
+  type CreateUsernameResponse {
+    success: Boolean
     error: String
   }
 `;
