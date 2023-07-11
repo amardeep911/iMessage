@@ -23,9 +23,7 @@ const Auth: React.FunctionComponent<IAuthProps> = ({
     CreateUsernameVariables
   >(userOperations.Mutations.createUsername);
 
-  console.log(data);
-  console.log(loading);
-  console.log(error);
+  console.log('here is my data', data, loading, error);
 
   const onsubmit = async () => {
     if (!username) return;
