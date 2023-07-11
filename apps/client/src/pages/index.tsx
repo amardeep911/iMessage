@@ -1,6 +1,14 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { signIn, useSession } from 'next-auth/react';
+
 const Home = () => {
-  return <div>hlw</div>;
+  const { data } = useSession();
+  console.log(data);
+  console.log(process.env.GOOGLE_CLIENT_ID);
+  return (
+    <div>
+      <button onClick={() => signIn('google')}>Sign in </button>
+    </div>
+  );
 };
 
 export default Home;
