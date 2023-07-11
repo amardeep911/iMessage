@@ -1,6 +1,7 @@
+import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
 import { SessionProvider } from 'next-auth/react';
 import { AppProps } from 'next/app';
-import '../../styles/globals.css';
+import { theme } from '../chakra/theme';
 
 const MyApp = ({
   Component,
@@ -8,7 +9,10 @@ const MyApp = ({
 }: AppProps) => (
   // eslint-disable-next-line react/jsx-props-no-spreading
   <SessionProvider session={session}>
-    <Component {...pageProps} />
+    <ChakraProvider theme={theme}>
+      <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+      <Component {...pageProps} />
+    </ChakraProvider>
   </SessionProvider>
 );
 
