@@ -7,6 +7,7 @@ import { ApolloServer } from 'apollo-server-express';
 import * as dotenv from 'dotenv';
 import express from 'express';
 import http from 'http';
+import { getSession } from 'next-auth/react';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
 async function main() {
@@ -32,6 +33,10 @@ async function main() {
       ApolloServerPluginDrainHttpServer({ httpServer }),
       ApolloServerPluginLandingPageLocalDefault({ embed: true }),
     ],
+    context: async ({ req }) => {
+      const session = await getSession({ req });
+      return { session };
+    },
   });
   await server.start();
   server.applyMiddleware({ app, cors: corsOptions });
