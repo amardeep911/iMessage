@@ -18,22 +18,32 @@ const Auth: React.FunctionComponent<IAuthProps> = ({
 }) => {
   const [username, setUsername] = useState('');
 
-  const [createUsername, { data, loading, error }] = useMutation<
+  const [createUsername, { loading, error }] = useMutation<
     CreateUsernameData,
     CreateUsernameVariables
   >(userOperations.Mutations.createUsername);
-
-  console.log('here is my data', data, loading, error);
 
   const onsubmit = async () => {
     if (!username) return;
     try {
       //create a mutation to send username to the GraphQL API
-      await createUsername({
+      const { data } = await createUsername({
         variables: {
           username,
         },
       });
+
+      if (!data?.createUsername) {
+        throw new Error();
+      }
+      if (data.createUsername.error) {
+        const {
+          createUsername: { error },
+        } = data;
+        throw new Error(error);
+      }
+      //reload the session
+      reloadSession();
     } catch (error) {
       console.log('error creating username');
       console.log(error);
@@ -41,7 +51,7 @@ const Auth: React.FunctionComponent<IAuthProps> = ({
   };
 
   return (
-    <Center height="100vh" border="1px solid red">
+    <Center height="100vh">
       <Stack align="center" spacing={8}>
         {session ? (
           <>

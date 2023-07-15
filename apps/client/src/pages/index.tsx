@@ -5,8 +5,12 @@ import { getSession, useSession } from 'next-auth/react';
 import Auth from '../components/Auth/Auth';
 const Home: NextPage = () => {
   const { data: session } = useSession();
+  console.log(session);
 
-  const reloadSession = () => {};
+  const reloadSession = () => {
+    const event = new Event('visibilitychange');
+    document.dispatchEvent(event);
+  };
 
   return (
     <Box>
