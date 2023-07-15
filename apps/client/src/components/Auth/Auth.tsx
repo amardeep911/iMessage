@@ -6,6 +6,7 @@ import { Session } from 'next-auth';
 import { signIn } from 'next-auth/react';
 import * as React from 'react';
 import { useState } from 'react';
+import { toast } from 'react-hot-toast';
 
 interface IAuthProps {
   session: Session | null;
@@ -42,9 +43,12 @@ const Auth: React.FunctionComponent<IAuthProps> = ({
         } = data;
         throw new Error(error);
       }
+      toast.success('Username created successfully! 🎉');
+
       //reload the session
       reloadSession();
-    } catch (error) {
+    } catch (error: any) {
+      toast.error(error?.message);
       console.log('error creating username');
       console.log(error);
     }
