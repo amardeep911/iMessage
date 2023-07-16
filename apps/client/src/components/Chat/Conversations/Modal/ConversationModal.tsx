@@ -17,6 +17,7 @@ import {
 } from '@src/util/types';
 import React, { useState } from 'react';
 import UserOperations from '../../../../graphql/operations/user';
+import Participants from './Participants';
 import UserSearchList from './UserSearchList';
 
 interface ModalProp {
@@ -47,8 +48,8 @@ const ConversationModal: React.FC<ModalProp> = ({ isOpen, onClose }) => {
     setusername('');
   };
 
-  const removeParticipant = (user: SearchedUsers) => {
-    setParticipants(prev => prev.filter(u => u.id !== user.id));
+  const removeParticipant = (userId: string) => {
+    setParticipants(prev => prev.filter(u => u.id !== userId));
   };
 
   return (
@@ -77,6 +78,12 @@ const ConversationModal: React.FC<ModalProp> = ({ isOpen, onClose }) => {
                 addParticipant={addParticipant}
               />
             )}
+            {
+              <Participants
+                participants={participants}
+                removeParticipant={removeParticipant}
+              />
+            }
           </ModalBody>
         </ModalContent>
       </Modal>
