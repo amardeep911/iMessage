@@ -1,8 +1,14 @@
+import { GraphQLContext } from '../../../util/type';
+
 const resolvers = {
   // Query: {},
   Mutation: {
-    createConversation: async () => {
-      console.log('INSIDE CREATE CONVERSATION');
+    createConversation: async (
+      _: any,
+      args: { paritcipantIds: Array<string> },
+      context: GraphQLContext
+    ) => {
+      console.log('INSIDE CREATE CONVERSATION', args);
     },
   },
 };

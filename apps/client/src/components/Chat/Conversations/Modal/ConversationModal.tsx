@@ -22,17 +22,26 @@ import { toast } from 'react-hot-toast';
 import ConversationOperations from '../../../../graphql/operations/conversation';
 import UserOperations from '../../../../graphql/operations/user';
 
+import { Session } from 'next-auth';
 import Participants from './Participants';
 import UserSearchList from './UserSearchList';
 
 interface ModalProp {
   isOpen: boolean;
   onClose: () => void;
+  session: Session;
 }
 
-const ConversationModal: React.FC<ModalProp> = ({ isOpen, onClose }) => {
+const ConversationModal: React.FC<ModalProp> = ({
+  session,
+  isOpen,
+  onClose,
+}) => {
   const [username, setusername] = useState('');
   const [participants, setParticipants] = useState<Array<SearchedUsers>>([]);
+
+  const { id: userId } = session.user;
+
   const [searchUsers, { data, loading, error }] = useLazyQuery<
     SearchUsersData,
     SearchUsersInput
@@ -63,7 +72,13 @@ const ConversationModal: React.FC<ModalProp> = ({ isOpen, onClose }) => {
   };
 
   const onCreateConversation = async () => {
+    const participantIds = [userId, ...participants.map(p => p.id)];
+    console.log('participantIds', participantIds);
     try {
+      const { data } = await createConversation({
+        variables: { participantIds: participantIds },
+      });
+      console.log('data' + data);
     } catch (error: any) {
       console.log('error creating conversation', error);
       toast.error(error?.message);

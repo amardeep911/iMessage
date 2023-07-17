@@ -31,5 +31,5 @@ export interface CreateConversationData {
 }
 
 export interface CreateConversationInput {
-  participantId: Array<string>;
+  participantIds: Array<string>;
 }
