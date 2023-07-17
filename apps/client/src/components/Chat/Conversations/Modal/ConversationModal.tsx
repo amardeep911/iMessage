@@ -16,6 +16,7 @@ import {
   SearchedUsers,
 } from '@src/util/types';
 import React, { useState } from 'react';
+import { toast } from 'react-hot-toast';
 import UserOperations from '../../../../graphql/operations/user';
 import Participants from './Participants';
 import UserSearchList from './UserSearchList';
@@ -52,6 +53,15 @@ const ConversationModal: React.FC<ModalProp> = ({ isOpen, onClose }) => {
     setParticipants(prev => prev.filter(u => u.id !== userId));
   };
 
+  const onCreateConversation = async () => {
+    try {
+      // create conversation
+    } catch (error: any) {
+      console.log('error creating conversation', error);
+      toast.error(error?.message);
+    }
+  };
+
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose}>
@@ -78,12 +88,23 @@ const ConversationModal: React.FC<ModalProp> = ({ isOpen, onClose }) => {
                 addParticipant={addParticipant}
               />
             )}
-            {
-              <Participants
-                participants={participants}
-                removeParticipant={removeParticipant}
-              />
-            }
+            {participants.length !== 0 && (
+              <>
+                <Participants
+                  participants={participants}
+                  removeParticipant={removeParticipant}
+                />
+                <Button
+                  bg="brand.100"
+                  width="100%"
+                  mt={6}
+                  _hover={{ bg: 'brand.100' }}
+                  onClick={() => console.log('create conversation')}
+                >
+                  Create conversation
+                </Button>
+              </>
+            )}
           </ModalBody>
         </ModalContent>
       </Modal>

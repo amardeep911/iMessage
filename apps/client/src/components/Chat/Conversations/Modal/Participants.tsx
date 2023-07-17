@@ -16,6 +16,7 @@ const Participants: React.FC<ParticipantsProps> = ({
     <Flex mt={8} gap="10px" flexWrap="wrap">
       {participants.map(participants => (
         <Stack
+          key={participants.id}
           direction="row"
           align="center"
           bg="whiteAlpha.200"
