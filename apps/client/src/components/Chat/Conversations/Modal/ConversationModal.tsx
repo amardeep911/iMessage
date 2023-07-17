@@ -1,4 +1,4 @@
-import { useLazyQuery } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client';
 import {
   Button,
   Input,
@@ -11,13 +11,17 @@ import {
   Stack,
 } from '@chakra-ui/react';
 import {
+  CreateConversationData,
+  CreateConversationInput,
   SearchUsersData,
   SearchUsersInput,
   SearchedUsers,
 } from '@src/util/types';
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
+import ConversationOperations from '../../../../graphql/operations/conversation';
 import UserOperations from '../../../../graphql/operations/user';
+
 import Participants from './Participants';
 import UserSearchList from './UserSearchList';
 
@@ -33,6 +37,11 @@ const ConversationModal: React.FC<ModalProp> = ({ isOpen, onClose }) => {
     SearchUsersData,
     SearchUsersInput
   >(UserOperations.Queries.searchUsers);
+
+  const [createConversation, { loading: createConversationLoading }] =
+    useMutation<CreateConversationData, CreateConversationInput>(
+      ConversationOperations.Mutations.createConversation
+    );
 
   console.log('here is seached data', data);
 
@@ -55,7 +64,6 @@ const ConversationModal: React.FC<ModalProp> = ({ isOpen, onClose }) => {
 
   const onCreateConversation = async () => {
     try {
-      // create conversation
     } catch (error: any) {
       console.log('error creating conversation', error);
       toast.error(error?.message);
@@ -99,7 +107,8 @@ const ConversationModal: React.FC<ModalProp> = ({ isOpen, onClose }) => {
                   width="100%"
                   mt={6}
                   _hover={{ bg: 'brand.100' }}
-                  onClick={() => console.log('create conversation')}
+                  onClick={onCreateConversation}
+                  isLoading={createConversationLoading}
                 >
                   Create conversation
                 </Button>
