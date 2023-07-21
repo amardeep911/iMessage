@@ -17,6 +17,7 @@ import {
   SearchUsersInput,
   SearchedUsers,
 } from '@src/util/types';
+import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import ConversationOperations from '../../../../graphql/operations/conversation';
@@ -37,6 +38,7 @@ const ConversationModal: React.FC<ModalProp> = ({
   isOpen,
   onClose,
 }) => {
+  const router = useRouter();
   const [username, setusername] = useState('');
   const [participants, setParticipants] = useState<Array<SearchedUsers>>([]);
 
@@ -78,6 +80,21 @@ const ConversationModal: React.FC<ModalProp> = ({
       const { data } = await createConversation({
         variables: { participantIds: participantIds },
       });
+
+      if (!data?.createConversation) {
+        throw new Error('Error creating conversation');
+      }
+
+      const {
+        createConversation: { conversationId },
+      } = data;
+
+      router.push({ query: { conversationId } });
+
+      //clear state and close the model
+      setParticipants([]);
+      setusername('');
+      onClose();
 
       console.log(data);
     } catch (error: any) {
