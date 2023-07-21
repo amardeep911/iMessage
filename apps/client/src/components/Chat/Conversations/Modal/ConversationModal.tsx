@@ -78,7 +78,8 @@ const ConversationModal: React.FC<ModalProp> = ({
       const { data } = await createConversation({
         variables: { participantIds: participantIds },
       });
-      console.log('data' + data);
+
+      console.log(data);
     } catch (error: any) {
       console.log('error creating conversation', error);
       toast.error(error?.message);

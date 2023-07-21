@@ -7,12 +7,11 @@ datasource db {
 generator client {
   provider        = "prisma-client-js"
   binaryTargets = ["native","darwin", "darwin-arm64"]
-
 }
 
 model Account {
   id  String  @id @default(auto()) @map("_id") @db.ObjectId
-  userId             String
+  userId             String 
   type               String
   provider           String
   providerAccountId  String
@@ -56,7 +55,6 @@ model VerificationToken {
   identifier String
   token      String   @unique
   expires    DateTime
-
   @@unique([identifier, token])
 }
 
@@ -64,13 +62,11 @@ model Conversation {
   id               String            @id @default(auto()) @map("_id") @db.ObjectId
   messages         Message[]
   participants     ConversationParticipant[]
-  latestMessageId  String            @unique
+  latestMessageId  String?            @unique 
   latestMessage    Message?          @relation(name: "latestConversationMessage", fields: [latestMessageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
 }
-
-
 
 //Model which joins two table 
 model ConversationParticipant{
@@ -78,9 +74,10 @@ model ConversationParticipant{
   userId    String
   user      User @relation(fields: [userId], references: [id])
   conversationId String
-  hasSeenLatestMessage Boolean @default(false)
+  hasSeenLatestMessage Boolean 
   conversation Conversation @relation(fields: [conversationId], references: [id])
-
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Message{
