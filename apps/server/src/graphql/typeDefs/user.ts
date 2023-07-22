@@ -1,6 +1,15 @@
 import { gql } from 'apollo-server-express';
 
 const typeDefs = gql`
+  type User {
+    id: String
+    name: String
+    username: String
+    email: String
+    emailVerified: Boolean
+    image: String
+  }
+
   type SearchedUsers {
     id: String!
     username: String

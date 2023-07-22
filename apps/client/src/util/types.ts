@@ -1,5 +1,5 @@
 //user types
-
+import { ConversationPopulated } from '../../../server/util/type';
 export interface CreateUsernameData {
   createUsername: {
     success: boolean;
@@ -23,6 +23,10 @@ export interface SearchedUsers {
 }
 
 //conversation types
+
+export interface ConversationsData {
+  conversations: Array<ConversationPopulated>;
+}
 
 export interface CreateConversationData {
   createConversation: {

@@ -1,8 +1,49 @@
 import { ApolloError } from 'apollo-server-express';
 import { Prisma } from 'prisma/prisma-client';
-import { GraphQLContext } from '../../../util/type';
+import { ConversationPopulated, GraphQLContext } from '../../../util/type';
 const resolvers = {
-  // Query: {},
+  Query: {
+    conversations: async (
+      _: any,
+      __: any,
+      context: GraphQLContext
+    ): Promise<Array<ConversationPopulated>> => {
+      const { session, prisma } = context;
+      if (!session?.user) {
+        throw new ApolloError('You must be authenticated');
+      }
+      const {
+        user: { id: userId },
+      } = session;
+      try {
+        const conversations = await prisma.conversation.findMany({
+          // It should be worked and it is a correct query confirmerd by the prisma team. Issue seems specific to Mongo
+          // where: {
+          //   participants: {
+          //     some: {
+          //       userId: {
+          //         equals: userId,
+          //       }
+          //     },
+          //   },
+          // },
+          include: conversationPopulated,
+        });
+
+        //Since that query is not working, we are doing this
+        return conversations.filter(
+          conversartion =>
+            !!conversartion.participants.find(
+              participant => participant.userId === userId
+            )
+        );
+      } catch (err: any) {
+        console.log('conversation err', err);
+        throw new ApolloError(err?.message);
+      }
+    },
+  },
+
   Mutation: {
     createConversation: async (
       _: any,
