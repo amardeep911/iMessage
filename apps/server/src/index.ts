@@ -6,10 +6,12 @@ import {
 import { ApolloServer } from 'apollo-server-express';
 import * as dotenv from 'dotenv';
 import express from 'express';
+import { useServer } from 'graphql-ws/lib/use/ws';
 import http from 'http';
 import { getSession } from 'next-auth/react';
 import { PrismaClient } from 'prisma/prisma-client';
-import { GraphQLContext, Session } from '../util/type';
+import { WebSocketServer } from 'ws';
+import { GraphQLContext, Session, SubscriptionContext } from '../util/type';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
 async function main() {
@@ -17,18 +19,41 @@ async function main() {
   const app = express();
   const httpServer = http.createServer(app);
 
+  const wsServer = new WebSocketServer({
+    // This is the `httpServer` we created in a previous step.
+    server: httpServer,
+    // Pass a different path here if your ApolloServer serves at
+    // a different path.
+    path: '/graphql/subscriptions',
+  });
+
   const schema = makeExecutableSchema({
     typeDefs,
     resolvers,
   });
 
+  // context parameter
+
+  const prisma = new PrismaClient();
+  const serverCleanup = useServer(
+    {
+      schema,
+      context: (ctx: SubscriptionContext): Promise<GraphQLContext> => {
+        if (ctx.connectionParams && ctx.connectionParams.session) {
+          const { session } = ctx.connectionParams;
+
+          return Promise.resolve({ session, prisma });
+        }
+        return Promise.resolve({ session: null, prisma });
+      },
+    },
+    wsServer
+  );
+
   const corsOptions = {
     origin: process.env.CLIENT_ORIGIN,
     credentials: true,
   };
-  // context parameter
-
-  const prisma = new PrismaClient();
 
   const server = new ApolloServer({
     schema,
@@ -37,6 +62,15 @@ async function main() {
     plugins: [
       ApolloServerPluginDrainHttpServer({ httpServer }),
       ApolloServerPluginLandingPageLocalDefault({ embed: true }),
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              await serverCleanup.dispose();
+            },
+          };
+        },
+      },
     ],
     context: async ({ req, res }): Promise<GraphQLContext> => {
       const session = (await getSession({ req })) as Session;
