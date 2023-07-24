@@ -6,6 +6,7 @@ import {
 import { ApolloServer } from 'apollo-server-express';
 import * as dotenv from 'dotenv';
 import express from 'express';
+import { PubSub } from 'graphql-subscriptions';
 import { useServer } from 'graphql-ws/lib/use/ws';
 import http from 'http';
 import { getSession } from 'next-auth/react';
@@ -35,6 +36,7 @@ async function main() {
   // context parameter
 
   const prisma = new PrismaClient();
+  const pubsub = new PubSub();
   const serverCleanup = useServer(
     {
       schema,
@@ -42,9 +44,9 @@ async function main() {
         if (ctx.connectionParams && ctx.connectionParams.session) {
           const { session } = ctx.connectionParams;
 
-          return Promise.resolve({ session, prisma });
+          return Promise.resolve({ session, prisma, pubsub });
         }
-        return Promise.resolve({ session: null, prisma });
+        return Promise.resolve({ session: null, prisma, pubsub });
       },
     },
     wsServer
@@ -75,7 +77,7 @@ async function main() {
     context: async ({ req, res }): Promise<GraphQLContext> => {
       const session = (await getSession({ req })) as Session;
       console.log('session', session);
-      return { session, prisma };
+      return { session, prisma, pubsub };
     },
   });
   await server.start();
