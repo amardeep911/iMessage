@@ -11,6 +11,7 @@ export const FeedWrapper: React.FC<FeedWrapperProps> = ({ session }) => {
   const router = useRouter();
 
   const { conversationId } = router.query;
+  console.log('conversationId', conversationId);
   return (
     <Flex
       display={{ base: conversationId ? 'flex' : 'none', md: 'flex' }}
