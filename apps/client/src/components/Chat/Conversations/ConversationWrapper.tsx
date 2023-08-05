@@ -2,7 +2,7 @@ import { useQuery } from '@apollo/client';
 import { Box } from '@chakra-ui/react';
 import { ConversationsData } from '@src/util/types';
 import { Session } from 'next-auth';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ConversationPopulated } from '../../../../../server/util/type';
 import conversationOperation from '../../../graphql/operations/conversation';
 import { ConversationList } from './ConversationList';
@@ -14,9 +14,6 @@ interface ConversationWrapperProps {
 export const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
   session,
 }) => {
-  React.useEffect(() => {
-    subscribeToNewConversation();
-  }, []);
   const {
     data: conversationsData,
     error: conversationError,
@@ -41,27 +38,32 @@ export const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
         }
       ) => {
         // Check if subscriptionData.data exists and is valid
-        if (subscriptionData?.data?.conversationCreated) {
-          const newConversation = subscriptionData.data.conversationCreated;
-          console.log('newConversation', newConversation);
-          console.log('prev', prev);
-          console.log('reached here1');
-          console.log('subscriptionData', subscriptionData);
-          return Object.assign({}, prev, {
-            conversations: [newConversation, ...prev.conversations],
-          });
+        if (!subscriptionData.data) return prev;
+        console.log('subscriptionData', subscriptionData);
+        const newConversation = subscriptionData.data.conversationCreated;
+        console.log('newConversation', newConversation);
+        // Check if the new conversation is already in the cache
+        if (
+          prev.conversations.find(
+            conversation => conversation.id === newConversation.id
+          )
+        ) {
+          return prev;
         }
+        // Add the new conversation to the cache
 
-        // If subscriptionData.data is not valid, return the previous data
-        console.log('reach here');
-        return prev;
+        return Object.assign({}, prev, {
+          conversations: [newConversation, ...prev.conversations],
+        });
       },
     });
   };
 
   console.log('conversationsData', conversationsData);
 
-  //Exceute subscription on mount
+  useEffect(() => {
+    subscribeToNewConversation();
+  }, []);
 
   console.log('here is conversation data', conversationsData);
   return (
