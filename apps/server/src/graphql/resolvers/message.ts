@@ -1,6 +1,12 @@
 import { Prisma } from '@prisma/client';
 import { GraphQLError } from 'graphql';
-import { GraphQLContext, sendMessageArguments } from '../../../util/type';
+import { withFilter } from 'graphql-subscriptions';
+import {
+  GraphQLContext,
+  MessageSentSubscriptionPayload,
+  sendMessageArguments,
+} from '../../../util/type';
+
 const resolvers = {
   Query: {},
   Mutation: {
@@ -74,8 +80,26 @@ const resolvers = {
       return true;
     },
   },
-  Subscription: {},
+  Subscription: {
+    messageSent: {
+      subscribe: withFilter(
+        (_: any, __: any, context: GraphQLContext) => {
+          const { pubsub } = context;
+          return pubsub.asyncIterator(['MESSAGE_SENT']);
+        },
+        (
+          payload: MessageSentSubscriptionPayload,
+          args: { conversationId: string },
+          context: GraphQLContext
+        ) => {
+          return payload.messageSent.conversationId === args.conversationId;
+        }
+      ),
+    },
+  },
 };
+
+export default resolvers;
 
 export const messagePopulated = Prisma.validator<Prisma.MessageInclude>()({
   sender: {
@@ -85,5 +109,3 @@ export const messagePopulated = Prisma.validator<Prisma.MessageInclude>()({
     },
   },
 });
-
-export default resolvers;
