@@ -2,6 +2,7 @@ import { useQuery } from '@apollo/client';
 import { Box } from '@chakra-ui/react';
 import { ConversationsData } from '@src/util/types';
 import { Session } from 'next-auth';
+import { useRouter } from 'next/router';
 import React, { useEffect } from 'react';
 import { ConversationPopulated } from '../../../../../server/util/type';
 import conversationOperation from '../../../graphql/operations/conversation';
@@ -20,11 +21,16 @@ export const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
     loading: conversationLoading,
     subscribeToMore,
   } = useQuery<ConversationsData>(conversationOperation.Queries.conversations);
+  const router = useRouter();
+  const { conversationId } = router.query;
 
-  console.log('Query Data', conversationsData);
+  const onViewConversation = async (conversationId: string) => {
+    //1 push the coverstation id to the url
+    router.push({ query: { conversationId } });
+    //2 Mark the conversation as read
+  };
 
   const subscribeToNewConversation = () => {
-    console.log('reached');
     subscribeToMore({
       document: conversationOperation.Subscriptions.conversationCreated,
       updateQuery: (
@@ -39,9 +45,7 @@ export const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
       ) => {
         // Check if subscriptionData.data exists and is valid
         if (!subscriptionData.data) return prev;
-        console.log('subscriptionData', subscriptionData);
         const newConversation = subscriptionData.data.conversationCreated;
-        console.log('newConversation', newConversation);
         // Check if the new conversation is already in the cache
         if (
           prev.conversations.find(
@@ -59,19 +63,24 @@ export const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
     });
   };
 
-  console.log('conversationsData', conversationsData);
-
   useEffect(() => {
     subscribeToNewConversation();
   }, []);
 
   console.log('here is conversation data', conversationsData);
   return (
-    <Box width={{ base: '100%', md: '400px' }} bg="whiteAlpha.50" py={6} px={3}>
+    <Box
+      width={{ base: '100%', md: '400px' }}
+      bg="whiteAlpha.50"
+      py={6}
+      px={3}
+      display={{ base: conversationId ? 'none' : 'flex', md: 'flex' }}
+    >
       {/* Skeleton loader */}
       <ConversationList
         session={session}
         conversations={conversationsData?.conversations || []}
+        onViewConversation={onViewConversation}
       />
     </Box>
   );

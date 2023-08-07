@@ -1,5 +1,6 @@
 import { Box, Text } from '@chakra-ui/react';
 import { Session } from 'next-auth';
+import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { ConversationPopulated } from '../../../../../server/util/type';
 import ConversationItem from './ConversatonItem';
@@ -8,17 +9,23 @@ import ConversationModal from './Modal/ConversationModal';
 interface ConversationListProps {
   session: Session;
   conversations: Array<ConversationPopulated>;
+  onViewConversation: (conversationId: string) => void;
 }
 
 export const ConversationList: React.FC<ConversationListProps> = ({
   session,
   conversations,
+  onViewConversation,
 }) => {
   const [isOpen, setisOpen] = useState(false);
 
   const onOpen = () => setisOpen(true);
   const onClose = () => setisOpen(false);
 
+  const router = useRouter();
+  const {
+    user: { id: userId },
+  } = session;
   return (
     <Box width="100%">
       <Box
@@ -35,7 +42,13 @@ export const ConversationList: React.FC<ConversationListProps> = ({
       </Box>
       <ConversationModal session={session} isOpen={isOpen} onClose={onClose} />
       {conversations.map(conversation => (
-        <ConversationItem conversation={conversation} key={conversation.id} />
+        <ConversationItem
+          conversation={conversation}
+          key={conversation.id}
+          onClick={() => onViewConversation(conversation.id)}
+          isSelected={conversation.id === router.query.conversationId}
+          userId={userId}
+        />
       ))}
     </Box>
   );

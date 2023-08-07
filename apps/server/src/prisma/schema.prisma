@@ -86,6 +86,7 @@ model Message{
   conversation Conversation @relation(fields: [conversationId], references: [id])
   senderId String
   sender User @relation(fields: [senderId], references: [id])
+  body String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   isLatestIn  Conversation? @relation(name: "latestConversationMessage")
