@@ -44,3 +44,10 @@ export interface User {
   email: string;
   name: string;
 }
+
+export interface sendMessageArguments {
+  id: string;
+  conversationId: string;
+  body: string;
+  senderId: string;
+}
