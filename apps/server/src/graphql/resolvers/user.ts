@@ -1,4 +1,4 @@
-import { ApolloError } from 'apollo-server-express';
+import { GraphQLError } from 'graphql';
 import { User } from 'prisma/prisma-client';
 import { GraphQLContext } from '../../../util/type';
 
@@ -13,7 +13,7 @@ const resolvers = {
       const { prisma, session } = context;
 
       if (!session?.user) {
-        throw new ApolloError('Not Authenticated');
+        throw new GraphQLError('Not Authenticated');
       }
 
       const {
@@ -34,7 +34,7 @@ const resolvers = {
         return users;
       } catch (error: any) {
         console.log('search user error', error);
-        throw new ApolloError(error?.message);
+        throw new GraphQLError(error?.message);
       }
 
       console.log('inside serc user');

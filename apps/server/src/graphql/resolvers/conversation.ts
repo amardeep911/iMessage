@@ -1,4 +1,4 @@
-import { ApolloError } from 'apollo-server-express';
+import { GraphQLError } from 'graphql';
 import { withFilter } from 'graphql-subscriptions';
 import { Prisma } from 'prisma/prisma-client';
 import { ConversationPopulated, GraphQLContext } from '../../../util/type';
@@ -11,7 +11,7 @@ const resolvers = {
     ): Promise<Array<ConversationPopulated>> => {
       const { session, prisma } = context;
       if (!session?.user) {
-        throw new ApolloError('You must be authenticated');
+        throw new GraphQLError('You must be authenticated');
       }
       const {
         user: { id: userId },
@@ -40,7 +40,7 @@ const resolvers = {
         );
       } catch (err: any) {
         console.log('conversation err', err);
-        throw new ApolloError(err?.message);
+        throw new GraphQLError(err?.message);
       }
     },
   },
@@ -55,7 +55,7 @@ const resolvers = {
       const { participantIds } = args;
 
       if (!session?.user) {
-        throw new ApolloError('You must be authenticated');
+        throw new GraphQLError('You must be authenticated');
       }
 
       const {
@@ -86,7 +86,7 @@ const resolvers = {
         return { conversationId: conversation.id };
       } catch (err) {
         console.log(err);
-        throw new ApolloError('Error creating conversation');
+        throw new GraphQLError('Error creating conversation');
       }
     },
   },
