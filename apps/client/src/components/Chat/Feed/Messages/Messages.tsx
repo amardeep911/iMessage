@@ -1,5 +1,6 @@
 import { useQuery } from '@apollo/client';
 import { Flex, Stack } from '@chakra-ui/react';
+import SkeletonLoader from '@src/components/common/SkeletonLoader';
 import MessageOperation from '@src/graphql/operations/message';
 import { MessageData, MessageVariables } from '@src/util/types';
 import { toast } from 'react-hot-toast';
@@ -27,9 +28,8 @@ const Messages: React.FC<MessageProp> = ({ userId, conversationId }) => {
   return (
     <Flex direction="column" justify="flex-end" overflow="hidden">
       {loading && (
-        <Stack>
-          {/* <SkeletonLoader count={4} height="60px" width="100%" /> */}
-          <span>Loading messages</span>
+        <Stack spacing={4} px={4}>
+          <SkeletonLoader count={4} height="60px" />
         </Stack>
       )}
       {data?.messages && (

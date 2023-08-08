@@ -62,8 +62,8 @@ const resolvers = {
           },
         });
 
-        // return messages;
-        return [{ body: 'hey there this is dummy msg' } as MessagePopulated];
+        return messages;
+        // return [{ body: 'hey there this is dummy msg' } as MessagePopulated];
       } catch (error: any) {
         console.log('messages error', error);
         throw new GraphQLError(error?.message);

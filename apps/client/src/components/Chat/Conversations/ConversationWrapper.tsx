@@ -1,5 +1,6 @@
 import { useQuery } from '@apollo/client';
 import { Box } from '@chakra-ui/react';
+import SkeletonLoader from '@src/components/common/SkeletonLoader';
 import { ConversationsData } from '@src/util/types';
 import { Session } from 'next-auth';
 import { useRouter } from 'next/router';
@@ -73,14 +74,19 @@ export const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
       bg="whiteAlpha.50"
       py={6}
       px={3}
+      gap={3}
+      flexDirection="column"
       display={{ base: conversationId ? 'none' : 'flex', md: 'flex' }}
     >
-      {/* Skeleton loader */}
-      <ConversationList
-        session={session}
-        conversations={conversationsData?.conversations || []}
-        onViewConversation={onViewConversation}
-      />
+      {conversationLoading ? (
+        <SkeletonLoader count={7} height="80px" />
+      ) : (
+        <ConversationList
+          session={session}
+          conversations={conversationsData?.conversations || []}
+          onViewConversation={onViewConversation}
+        />
+      )}
     </Box>
   );
 };
