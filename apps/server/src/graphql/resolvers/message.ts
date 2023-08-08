@@ -14,29 +14,32 @@ const resolvers = {
   Query: {
     messages: async function (
       _: any,
-      args: { converssationId: string },
+      args: { conversationId: string },
       context: GraphQLContext
     ): Promise<Array<MessagePopulated>> {
       const { session, prisma } = context;
-      const { converssationId } = args;
+      const { conversationId } = args;
 
       if (!session?.user) {
-        throw new GraphQLError('You must be authenticated');
+        throw new GraphQLError('Not authorized');
       }
+
       const {
         user: { id: userId },
       } = session;
-      //Verify conversation exit and that the user is part of the conversation
 
+      /**
+       * Verify that conversation exists & user is a participant
+       */
       const conversation = await prisma.conversation.findUnique({
         where: {
-          id: converssationId,
+          id: conversationId,
         },
         include: conversationPopulated,
       });
 
       if (!conversation) {
-        throw new GraphQLError('Conversation not found');
+        throw new GraphQLError('Conversation Not Found');
       }
 
       const allowedToView = userIsConversationParticipant(
@@ -45,16 +48,13 @@ const resolvers = {
       );
 
       if (!allowedToView) {
-        throw new GraphQLError(
-          'You are not authorized to view this conversation'
-        );
+        throw new GraphQLError('Not Authorized');
       }
 
-      //Get messages
       try {
         const messages = await prisma.message.findMany({
           where: {
-            conversationId: converssationId,
+            conversationId,
           },
           include: messagePopulated,
           orderBy: {
@@ -62,10 +62,11 @@ const resolvers = {
           },
         });
 
-        return messages;
-      } catch (err: any) {
-        console.log('messages err', err);
-        throw new GraphQLError(err?.message);
+        // return messages;
+        return [{ body: 'hey there this is dummy msg' } as MessagePopulated];
+      } catch (error: any) {
+        console.log('messages error', error);
+        throw new GraphQLError(error?.message);
       }
     },
   },

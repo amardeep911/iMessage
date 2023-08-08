@@ -54,14 +54,10 @@ const ConversationModal: React.FC<ModalProp> = ({
       ConversationOperations.Mutations.createConversation
     );
 
-  console.log('here is seached data', data);
-
   const onSearch = (event: React.FormEvent) => {
     event.preventDefault();
 
     searchUsers({ variables: { username } });
-
-    console.log('onsubmit', username);
   };
 
   const addParticipant = (user: SearchedUsers) => {
@@ -75,7 +71,7 @@ const ConversationModal: React.FC<ModalProp> = ({
 
   const onCreateConversation = async () => {
     const participantIds = [userId, ...participants.map(p => p.id)];
-    console.log('participantIds', participantIds);
+
     try {
       const { data } = await createConversation({
         variables: { participantIds: participantIds },
@@ -95,8 +91,6 @@ const ConversationModal: React.FC<ModalProp> = ({
       setParticipants([]);
       setusername('');
       onClose();
-
-      console.log(data);
     } catch (error: any) {
       console.log('error creating conversation', error);
       toast.error(error?.message);

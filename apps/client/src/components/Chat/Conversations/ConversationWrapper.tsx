@@ -67,7 +67,6 @@ export const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
     subscribeToNewConversation();
   }, []);
 
-  console.log('here is conversation data', conversationsData);
   return (
     <Box
       width={{ base: '100%', md: '400px' }}
