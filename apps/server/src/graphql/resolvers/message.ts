@@ -1,14 +1,74 @@
 import { Prisma } from '@prisma/client';
 import { GraphQLError } from 'graphql';
 import { withFilter } from 'graphql-subscriptions';
+import { userIsConversationParticipant } from '../../../util/function';
 import {
   GraphQLContext,
+  MessagePopulated,
   MessageSentSubscriptionPayload,
   sendMessageArguments,
 } from '../../../util/type';
+import { conversationPopulated } from './conversation';
 
 const resolvers = {
-  Query: {},
+  Query: {
+    messages: async function (
+      _: any,
+      args: { converssationId: string },
+      context: GraphQLContext
+    ): Promise<Array<MessagePopulated>> {
+      const { session, prisma } = context;
+      const { converssationId } = args;
+
+      if (!session?.user) {
+        throw new GraphQLError('You must be authenticated');
+      }
+      const {
+        user: { id: userId },
+      } = session;
+      //Verify conversation exit and that the user is part of the conversation
+
+      const conversation = await prisma.conversation.findUnique({
+        where: {
+          id: converssationId,
+        },
+        include: conversationPopulated,
+      });
+
+      if (!conversation) {
+        throw new GraphQLError('Conversation not found');
+      }
+
+      const allowedToView = userIsConversationParticipant(
+        conversation.participants,
+        userId
+      );
+
+      if (!allowedToView) {
+        throw new GraphQLError(
+          'You are not authorized to view this conversation'
+        );
+      }
+
+      //Get messages
+      try {
+        const messages = await prisma.message.findMany({
+          where: {
+            conversationId: converssationId,
+          },
+          include: messagePopulated,
+          orderBy: {
+            createdAt: 'desc',
+          },
+        });
+
+        return messages;
+      } catch (err: any) {
+        console.log('messages err', err);
+        throw new GraphQLError(err?.message);
+      }
+    },
+  },
   Mutation: {
     sendMessage: async function (
       _: any,

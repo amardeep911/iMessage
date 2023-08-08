@@ -7,6 +7,9 @@ const typeDefs = gql`
     body: String
     createdAt: Date
   }
+  type Query {
+    messages(conversationId: String): [Message]
+  }
   type Mutation {
     sendMessage(
       id: String
