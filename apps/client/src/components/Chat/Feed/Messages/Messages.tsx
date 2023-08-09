@@ -9,6 +9,7 @@ import {
 } from '@src/util/types';
 import { useEffect } from 'react';
 import { toast } from 'react-hot-toast';
+import MessageItem from './MessageItem';
 
 interface MessageProp {
   userId: string;
@@ -71,8 +72,11 @@ const Messages: React.FC<MessageProp> = ({ userId, conversationId }) => {
       {data?.messages && (
         <Flex direction="column-reverse" overflowY="scroll" height="100%">
           {data.messages.map(message => (
-            // <MessageITemm/>
-            <div key={message.id}>{message.body}</div>
+            <MessageItem
+              key={message.id}
+              message={message}
+              sentByMe={message.sender.id === userId}
+            />
           ))}
         </Flex>
       )}
