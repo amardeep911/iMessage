@@ -48,3 +48,10 @@ export interface MessageData {
 export interface MessageVariables {
   conversationId: string;
 }
+export interface MessageSubscriptionData {
+  subscriptionData: {
+    data: {
+      messageSent: MessagePopulated;
+    };
+  };
+}

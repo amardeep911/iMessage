@@ -64,6 +64,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
       align="center"
       justify="space-between"
       p={4}
+      my={4}
       cursor="pointer"
       borderRadius={4}
       bg={isSelected ? 'whiteAlpha.200' : 'none'}
