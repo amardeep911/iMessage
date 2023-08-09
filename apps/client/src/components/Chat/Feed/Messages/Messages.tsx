@@ -29,17 +29,13 @@ const Messages: React.FC<MessageProp> = ({ userId, conversationId }) => {
     },
   });
 
-  if (error) {
-    console.log(error);
-    toast.error(error.message);
-  }
-
   const subscribeToNewMessage = (conversationId: string) => {
     subscribeToMore({
       document: MessageOperation.Subscription.messageSent,
       variables: {
         conversationId,
       },
+
       updateQuery: (prev, { subscriptionData }: MessageSubscriptionData) => {
         if (!subscriptionData.data) return prev;
         console.log('here is subscription data', subscriptionData.data);
@@ -50,7 +46,10 @@ const Messages: React.FC<MessageProp> = ({ userId, conversationId }) => {
         }
 
         return Object.assign({}, prev, {
-          messages: [...prev.messages, newMessage],
+          messages:
+            newMessage.sender.id === userId
+              ? prev.messages
+              : [newMessage, ...prev.messages],
         });
       },
     });
@@ -59,6 +58,11 @@ const Messages: React.FC<MessageProp> = ({ userId, conversationId }) => {
   useEffect(() => {
     subscribeToNewMessage(conversationId);
   }, [conversationId]);
+
+  if (error) {
+    console.log(error);
+    toast.error(error.message);
+  }
 
   console.log('here is messaged data', data);
 

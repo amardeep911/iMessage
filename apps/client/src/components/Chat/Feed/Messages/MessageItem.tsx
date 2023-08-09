@@ -1,4 +1,4 @@
-import { Avatar, Flex, Stack, Text } from '@chakra-ui/react';
+import { Avatar, Box, Flex, Stack, Text } from '@chakra-ui/react';
 import { formatRelative } from 'date-fns';
 import enUS from 'date-fns/locale/en-US';
 import { MessagePopulated } from '../../../../../../server/util/type';
@@ -20,9 +20,10 @@ const MessageItem: React.FC<MessageItemProps> = ({ message, sentByMe }) => {
       direction={'row'}
       py={4}
       px={4}
+      spacing={4}
+      justify={sentByMe ? 'flex-end' : 'flex-start'}
       _hover={{ bg: 'whiteAlpha.300' }}
       wordBreak={'break-word'}
-      border={'1px solid red'}
     >
       {!sentByMe && (
         <Flex alignItems="flex-end">
@@ -30,7 +31,11 @@ const MessageItem: React.FC<MessageItemProps> = ({ message, sentByMe }) => {
         </Flex>
       )}
       <Stack spacing={1} width="100%">
-        <Stack direction="row" align="center">
+        <Stack
+          direction="row"
+          align="center"
+          justify={sentByMe ? 'flex-end' : 'flex-start'}
+        >
           {!sentByMe && (
             <Text fontWeight={500} textAlign="left">
               {message.sender.username}
@@ -48,6 +53,17 @@ const MessageItem: React.FC<MessageItemProps> = ({ message, sentByMe }) => {
             })}
           </Text>
         </Stack>
+        <Flex justify={sentByMe ? 'flex-end' : 'flex-start'}>
+          <Box
+            bg={sentByMe ? 'brand.100' : 'whiteAlpha.300'}
+            px={2}
+            py={1}
+            borderRadius={12}
+            maxWidth="65%"
+          >
+            <Text>{message.body}</Text>
+          </Box>
+        </Flex>
       </Stack>
     </Stack>
   );

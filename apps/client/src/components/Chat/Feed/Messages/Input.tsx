@@ -1,5 +1,6 @@
 import { useMutation } from '@apollo/client';
 import { Box, Input } from '@chakra-ui/react';
+import { MessageData } from '@src/util/types';
 import { ObjectId } from 'bson';
 import { Session } from 'next-auth';
 import { useState } from 'react';
@@ -35,9 +36,47 @@ const MessageInput: React.FC<MessageInputProps> = ({
         conversationId,
       };
 
+      setmessageBody('');
+
       const { data, errors } = await sendMessage({
         variables: {
           ...newMessage,
+        },
+        optimisticResponse: {
+          sendMessage: true,
+        },
+        update: cache => {
+          const existing = cache.readQuery<MessageData>({
+            query: MessageOperation.Query.messages,
+            variables: {
+              conversationId,
+            },
+          }) as MessageData;
+
+          cache.writeQuery<MessageData, { conversationId: string }>({
+            query: MessageOperation.Query.messages,
+            variables: {
+              conversationId,
+            },
+            data: {
+              ...existing,
+              messages: [
+                {
+                  id: messageId,
+                  body: messageBody,
+                  senderId: session.user.id,
+                  conversationId,
+                  sender: {
+                    id: session.user.id,
+                    username: session.user.username,
+                  },
+                  createdAt: new Date(Date.now()),
+                  updatedAt: new Date(Date.now()),
+                },
+                ...existing.messages,
+              ],
+            }, // <--- Missing comma here
+          }); // <--- Missing closing parenthesis here
         },
       });
 
