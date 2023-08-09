@@ -99,6 +99,20 @@ const resolvers = {
           include: messagePopulated,
         });
 
+        //Find conversation entity
+        const participant = await prisma.conversationParticipant.findFirst({
+          where: {
+            userId,
+            conversationId,
+          },
+        });
+
+        //should never happen
+
+        if (!participant) {
+          throw new GraphQLError('You are not authorized to send this message');
+        }
+
         //update conversation entity
 
         const conversation = await prisma.conversation.update({
@@ -110,7 +124,7 @@ const resolvers = {
             participants: {
               update: {
                 where: {
-                  id: senderId,
+                  id: participant.id,
                 },
                 data: {
                   hasSeenLatestMessage: true,
@@ -128,6 +142,7 @@ const resolvers = {
               },
             },
           },
+          include: conversationPopulated,
         });
 
         //publish message to conversation
