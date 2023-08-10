@@ -42,7 +42,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ message, sentByMe }) => {
             </Text>
           )}
           <Text fontSize={14} color="whiteAlpha.700">
-            {formatRelative(new Date(), new Date(), {
+            {formatRelative(new Date(message.createdAt), new Date(), {
               locale: {
                 ...enUS,
                 formatRelative: token =>

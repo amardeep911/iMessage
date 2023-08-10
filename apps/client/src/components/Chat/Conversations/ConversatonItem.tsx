@@ -13,7 +13,9 @@ import { formatRelative } from 'date-fns';
 import enUS from 'date-fns/locale/en-US';
 import React, { useState } from 'react';
 import { AiOutlineEdit } from 'react-icons/ai';
+import { GoPrimitiveDot } from 'react-icons/go';
 import { MdDeleteOutline } from 'react-icons/md';
+
 import { ConversationPopulated } from '../../../../../server/util/type';
 
 const formatRelativeLocale = {
@@ -120,11 +122,9 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
           )} */}
         </MenuList>
       </Menu>
-      {/* <Flex position="absolute" left="-6px">
-        {hasSeenLatestMessage === false && (
-          <GoPrimitiveDot fontSize={18} color="#6B46C1" />
-        )}
-      </Flex> */}
+      <Flex position="absolute" left="-6px">
+        {true && <GoPrimitiveDot fontSize={18} color="#6B46C1" />}
+      </Flex>
       <Avatar />
       <Flex justify="space-between" width="80%" height="100%">
         <Flex direction="column" width="70%" height="100%">
