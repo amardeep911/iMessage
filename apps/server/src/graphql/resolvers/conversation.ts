@@ -89,6 +89,47 @@ const resolvers = {
         throw new GraphQLError('Error creating conversation');
       }
     },
+    markConversationAsRead: async function (
+      _: any,
+      args: { conversationId: string; userId: string },
+      context: GraphQLContext
+    ): Promise<boolean> {
+      const { session, prisma } = context;
+      const { conversationId, userId } = args;
+
+      if (!session?.user) {
+        throw new GraphQLError('You must be authenticated');
+      }
+
+      try {
+        const participant = await prisma.conversationParticipant.findFirst({
+          where: {
+            userId,
+            conversationId,
+          },
+        });
+
+        if (!participant) {
+          throw new GraphQLError(
+            'You are not authorized to mark this conversation as read'
+          );
+        }
+
+        await prisma.conversationParticipant.update({
+          where: {
+            id: participant.id,
+          },
+          data: {
+            hasSeenLatestMessage: true,
+          },
+        });
+
+        return true;
+      } catch (error: any) {
+        console.log('markConversationAsRead error', error);
+        throw new GraphQLError(error?.message);
+      }
+    },
   },
 
   Subscription: {
