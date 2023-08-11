@@ -28,7 +28,9 @@
     "yarn": ">=1.22.0",
     "npm": "please-use-yarn"
   },
-  "dependencies": {},
+  "dependencies": {
+    "next-transpile-modules": "^10.0.1"
+  },
   "packageManager": "yarn@1.22.19",
   "lint-staged": {
     "apps/**/*.{js,ts,jsx,tsx}": [
