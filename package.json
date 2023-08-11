@@ -18,10 +18,12 @@
   "devDependencies": {
     "@commitlint/cli": "^17.5.1",
     "@commitlint/config-conventional": "^17.4.4",
+    "@types/react": "^18.2.20",
     "eslint-config-custom": "*",
     "lint-staged": "^13.2.0",
     "prettier": "latest",
-    "turbo": "^1.10.7"
+    "turbo": "^1.10.7",
+    "typescript": "^5.1.6"
   },
   "engines": {
     "node": ">=14.0.0",
