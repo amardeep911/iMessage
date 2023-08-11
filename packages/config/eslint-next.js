@@ -24,16 +24,15 @@ module.exports = {
   },
   rules: {
     // react
-    'react/function-component-definition': [
-      2,
-      {
-        namedComponents: 'arrow-function',
-      },
-    ],
-
-    // next
-    '@next/next/no-html-link-for-pages': 'off',
-    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    // 'react/function-component-definition': [
+    //   2,
+    //   {
+    //     namedComponents: 'arrow-function',
+    //   },
+    // ],
+    // // next
+    // '@next/next/no-html-link-for-pages': 'off',
+    // '@typescript-eslint/explicit-module-boundary-types': 'off',
   },
 
   overrides: [
