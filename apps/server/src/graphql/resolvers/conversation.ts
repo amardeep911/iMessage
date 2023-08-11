@@ -166,7 +166,7 @@ const resolvers = {
           console.log('payload', payload);
 
           const userIsParticipant = !!participants.find(
-            p => p.user.id === session?.user?.id
+            (p: any) => p.user.id === session?.user?.id
           );
           return userIsParticipant;
         }
