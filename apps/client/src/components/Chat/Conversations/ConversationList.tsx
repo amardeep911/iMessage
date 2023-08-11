@@ -2,7 +2,10 @@ import { Box, Text } from '@chakra-ui/react';
 import { Session } from 'next-auth';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
-import { ConversationPopulated } from '../../../../../server/util/type';
+import {
+  ConversationPopulated,
+  ParticipantPopulated,
+} from '../../../../../server/util/type';
 import ConversationItem from './ConversatonItem';
 import ConversationModal from './Modal/ConversationModal';
 
@@ -46,7 +49,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({
       <ConversationModal session={session} isOpen={isOpen} onClose={onClose} />
       {conversations.map(conversation => {
         const participant = conversation.participants.find(
-          participant => participant.user.id === userId
+          (participant: ParticipantPopulated) => participant.user.id === userId
         );
         return (
           <ConversationItem

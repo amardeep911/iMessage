@@ -115,35 +115,35 @@ const resolvers = {
 
         //update conversation entity
 
-        const conversation = await prisma.conversation.update({
-          where: {
-            id: conversationId,
-          },
-          data: {
-            latestMessageId: messageId,
-            participants: {
-              update: {
-                where: {
-                  id: participant.id,
-                },
-                data: {
-                  hasSeenLatestMessage: true,
-                },
-              },
-              updateMany: {
-                where: {
-                  NOT: {
-                    userId: senderId,
-                  },
-                },
-                data: {
-                  hasSeenLatestMessage: false,
-                },
-              },
-            },
-          },
-          include: conversationPopulated,
-        });
+        // const conversation = await prisma.conversation.update({
+        //   where: {
+        //     id: conversationId,
+        //   },
+        //   data: {
+        //     latestMessageId: messageId,
+        //     participants: {
+        //       update: {
+        //         where: {
+        //           id: participant.id,
+        //         },
+        //         data: {
+        //           hasSeenLatestMessage: true,
+        //         },
+        //       },
+        //       updateMany: {
+        //         where: {
+        //           NOT: {
+        //             userId: senderId,
+        //           },
+        //         },
+        //         data: {
+        //           hasSeenLatestMessage: false,
+        //         },
+        //       },
+        //     },
+        //   },
+        //   include: conversationPopulated,
+        // });
 
         //publish message to conversation
         pubsub.publish('MESSAGE_SENT', { messageSent: newMessage });
