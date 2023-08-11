@@ -33,8 +33,8 @@ const resolvers = {
 
         //Since that query is not working, we are doing this
         return conversations.filter(
-          conversartion =>
-            !!conversartion.participants.find(
+          conversation =>
+            !!conversation.participants.find(
               participant => participant.userId === userId
             )
         );
