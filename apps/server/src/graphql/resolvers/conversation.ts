@@ -2,6 +2,16 @@ import { GraphQLError } from 'graphql';
 import { withFilter } from 'graphql-subscriptions';
 import { Prisma } from 'prisma/prisma-client';
 import { ConversationPopulated, GraphQLContext } from '../../../util/type';
+
+interface Participant {
+  userId: string;
+  // Other participant properties
+}
+
+interface Conversation {
+  participants: Participant[];
+  // Other conversation properties
+}
 const resolvers = {
   Query: {
     conversations: async (
@@ -33,7 +43,7 @@ const resolvers = {
 
         //Since that query is not working, we are doing this
         return conversations.filter(
-          conversation =>
+          (conversation: Conversation) =>
             !!conversation.participants.find(
               participant => participant.userId === userId
             )
