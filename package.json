@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "build": "SKIP_TYPECHECK=true turbo run build",
+    "generate-prisma-types": "npx prisma generate --schema=apps/server/src/prisma/schema.prisma",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
