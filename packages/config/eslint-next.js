@@ -33,6 +33,7 @@ module.exports = {
 
     // next
     '@next/next/no-html-link-for-pages': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
   },
 
   overrides: [
