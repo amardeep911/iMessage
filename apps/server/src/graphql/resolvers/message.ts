@@ -1,6 +1,6 @@
-import { Prisma } from '@prisma/client';
 import { GraphQLError } from 'graphql';
 import { withFilter } from 'graphql-subscriptions';
+import { Prisma } from 'prisma/prisma-client';
 import { userIsConversationParticipant } from '../../../util/function';
 import {
   GraphQLContext,
