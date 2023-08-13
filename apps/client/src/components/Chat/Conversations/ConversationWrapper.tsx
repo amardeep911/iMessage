@@ -135,9 +135,8 @@ export const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
   //     },
   //   });
   // };
-
-  useEffect(() => {
-    const unsubscribe = subscribeToMore({
+  const subscribeToNewConversation = () => {
+    subscribeToMore({
       document: conversationOperation.Subscriptions.conversationCreated,
       updateQuery: (
         prev,
@@ -145,32 +144,35 @@ export const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
           subscriptionData,
         }: {
           subscriptionData: {
-            data: { conversationUpdated: ConversationPopulated };
+            data: { conversationCreated: ConversationPopulated };
           };
         }
       ) => {
+        // Check if subscriptionData.data exists and is valid
         if (!subscriptionData.data) return prev;
-
-        const updatedConversation = subscriptionData.data.conversationUpdated;
-
-        const alreadyExists = prev.conversations.find(
-          c => c.id === updatedConversation.id
-        );
-
-        if (!alreadyExists) return prev;
-
-        //free the
+        const newConversation = subscriptionData.data.conversationCreated;
+        // Check if the new conversation is already in the cache
+        if (
+          prev.conversations.find(
+            conversation => conversation.id === newConversation.id
+          )
+        ) {
+          return prev;
+        }
+        // Add the new conversation to the cache
 
         return Object.assign({}, prev, {
-          conversations: prev.conversations.map(c =>
-            c.id === updatedConversation.id ? updatedConversation : c
-          ),
+          conversations: [newConversation, ...prev.conversations],
         });
       },
     });
+  };
+  //this function is exceuting on mount but when i switch between the conversations it is not executing now how to fix it
+  useEffect(() => {
+    subscribeToNewConversation();
 
     return () => {
-      unsubscribe();
+      client.cache.evict({ fieldName: 'conversations' });
     };
   }, [conversationId]);
 
