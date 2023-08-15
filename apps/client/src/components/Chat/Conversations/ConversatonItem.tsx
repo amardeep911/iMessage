@@ -123,7 +123,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
         </MenuList>
       </Menu>
       <Flex position="absolute" left="-6px">
-        {hasSeenLatestMessage && (
+        {hasSeenLatestMessage == false && (
           <GoPrimitiveDot fontSize={18} color="#6B46C1" />
         )}
       </Flex>

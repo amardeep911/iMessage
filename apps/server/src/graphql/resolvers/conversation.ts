@@ -1,7 +1,11 @@
 import { GraphQLError } from 'graphql';
 import { withFilter } from 'graphql-subscriptions';
 import { Prisma } from 'prisma/prisma-client';
-import { ConversationPopulated, GraphQLContext } from '../../../util/type';
+import {
+  ConversationPopulated,
+  ConversationUpdatedSubscriptionGetPayload,
+  GraphQLContext,
+} from '../../../util/type';
 
 interface Participant {
   userId: string;
@@ -159,15 +163,71 @@ const resolvers = {
           context: GraphQLContext
         ) => {
           const { session } = context;
+
+          if (!session?.user) {
+            throw new GraphQLError('You must be authenticated');
+          }
           const {
             conversationCreated: { participants },
           } = payload;
 
-          console.log('payload', payload);
+          console.log('payload from conversation Created', payload);
 
           const userIsParticipant = !!participants.find(
             (p: any) => p.user.id === session?.user?.id
           );
+
+          // const userIsParticipant = userIsConversationParticipant(
+          //   participants,
+          //   session.user.id
+          // );
+          return userIsParticipant;
+        }
+      ),
+    },
+    conversationUpdated: {
+      subscribe: withFilter(
+        (_: any, __: any, context: GraphQLContext) => {
+          const { pubsub } = context;
+
+          return pubsub.asyncIterator(['CONVERSATION_UPDATED']);
+        },
+        (
+          payload: ConversationUpdatedSubscriptionGetPayload,
+          _: any,
+          context: GraphQLContext
+        ) => {
+          const { session } = context;
+
+          if (!session?.user) {
+            throw new GraphQLError('Not authorized');
+          }
+
+          const { id: userId } = session.user;
+          console.log('payload from conversation.ts', payload);
+          const {
+            conversationUpdated: {
+              conversation: { participants },
+            },
+          } = payload;
+
+          // const userIsParticipant = userIsConversationParticipant(
+          //   participants,
+          //   userId
+          // );
+
+          const userIsParticipant = !!participants.find(
+            (p: any) => p.user.id === userId
+          );
+
+          // const userSentLatestMessage =
+          //   payload.conversationUpdated.conversation.latestMessage?.senderId ===
+          //   userId;
+
+          // const userIsBeingRemoved =
+          //   removedUserIds &&
+          //   Boolean(removedUserIds.find((id) => id === userId));
+
           return userIsParticipant;
         }
       ),

@@ -1,7 +1,7 @@
-import { gql, useApolloClient, useMutation, useQuery } from '@apollo/client';
+import { gql, useMutation, useQuery, useSubscription } from '@apollo/client';
 import { Box } from '@chakra-ui/react';
 import SkeletonLoader from '@src/components/common/SkeletonLoader';
-import { ConversationsData } from '@src/util/types';
+import { ConversationUpdatedData, ConversationsData } from '@src/util/types';
 import { Session } from 'next-auth';
 import { useRouter } from 'next/router';
 import React, { useEffect } from 'react';
@@ -22,8 +22,6 @@ export const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
   const router = useRouter();
   const { conversationId } = router.query;
   const { id: userId } = session.user;
-  const client = useApolloClient(); // Get the Apollo Client instance
-
   const {
     data: conversationsData,
     error: conversationError,
@@ -36,14 +34,44 @@ export const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
     { conversationId: string; userId: string }
   >(conversationOperation.Mutations.markConversationAsRead);
 
+  useSubscription<ConversationUpdatedData>(
+    conversationOperation.Subscriptions.conversationUpdated,
+    {
+      onData: ({ client, data }) => {
+        const { data: subscriptionData } = data;
+        console.log('subscriptionDataFromClientWrapper', subscriptionData);
+
+        if (!subscriptionData) return;
+
+        const {
+          conversationUpdated: { conversation: updatedConversation },
+        } = subscriptionData;
+
+        const currentlyViewingConversation =
+          updatedConversation.id === conversationId;
+
+        if (currentlyViewingConversation) {
+          onViewConversation(updatedConversation.id, false);
+        }
+      },
+    }
+  );
+
   const onViewConversation = async (
     conversationId: string,
     hasSeenLatestMessage: boolean | undefined
   ) => {
+    /**
+     * 1. Push the conversationId to the router query params
+     */
     router.push({ query: { conversationId } });
 
+    /**
+     * 2. Mark the conversation as read
+     */
     if (hasSeenLatestMessage) return;
 
+    // markConversationAsRead mutation
     try {
       await markConversationAsRead({
         variables: {
@@ -54,6 +82,9 @@ export const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
           markConversationAsRead: true,
         },
         update: cache => {
+          /**
+           * Get conversation participants from cache
+           */
           const participantsFragment = cache.readFragment<{
             participants: Array<ParticipantPopulated>;
           }>({
@@ -83,11 +114,17 @@ export const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
 
           const userParticipant = participants[userParticipantIdx];
 
+          /**
+           * Update participant to show latest message as read
+           */
           participants[userParticipantIdx] = {
             ...userParticipant,
             hasSeenLatestMessage: true,
           };
 
+          /**
+           * Update cache
+           */
           cache.writeFragment({
             id: `Conversation:${conversationId}`,
             fragment: gql`
@@ -106,35 +143,6 @@ export const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
     }
   };
 
-  // const subscribeToNewConversations = () => {
-  //   subscribeToMore({
-  //     document: conversationOperation.Subscriptions.conversationCreated,
-  //     updateQuery: (
-  //       prev,
-  //       {
-  //         subscriptionData,
-  //       }: {
-  //         subscriptionData: {
-  //           data: { conversationCreated: ConversationPopulated };
-  //         };
-  //       }
-  //     ) => {
-  //       if (!subscriptionData.data) return prev;
-
-  //       const newConversation = subscriptionData.data.conversationCreated;
-
-  //       const alreadyExists = prev.conversations.find(
-  //         c => c.id === newConversation.id
-  //       );
-
-  //       if (alreadyExists) return prev;
-
-  //       return Object.assign({}, prev, {
-  //         conversations: [newConversation, ...prev.conversations],
-  //       });
-  //     },
-  //   });
-  // };
   const subscribeToNewConversation = () => {
     subscribeToMore({
       document: conversationOperation.Subscriptions.conversationCreated,
@@ -167,19 +175,10 @@ export const ConversationWrapper: React.FC<ConversationWrapperProps> = ({
       },
     });
   };
-  //this function is exceuting on mount but when i switch between the conversations it is not executing now how to fix it
+
   useEffect(() => {
     subscribeToNewConversation();
-
-    return () => {
-      client.cache.evict({ fieldName: 'conversations' });
-    };
-  }, [conversationId]);
-
-  if (conversationError) {
-    console.log('conversationError', conversationError);
-    return null;
-  }
+  }, []);
 
   return (
     <Box

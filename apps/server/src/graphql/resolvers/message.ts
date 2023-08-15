@@ -99,6 +99,8 @@ const resolvers = {
           include: messagePopulated,
         });
 
+        console.log('newMessage', newMessage);
+
         //Find conversation entity
         const participant = await prisma.conversationParticipant.findFirst({
           where: {
@@ -106,48 +108,56 @@ const resolvers = {
             conversationId,
           },
         });
-
+        console.log('participant', participant);
         //should never happen
 
         if (!participant) {
           throw new GraphQLError('You are not authorized to send this message');
         }
+        const { id: participantId } = participant;
 
-        //update conversation entity
+        // update conversation entity
+        console.log('conversationId', conversationId);
 
-        // const conversation = await prisma.conversation.update({
-        //   where: {
-        //     id: conversationId,
-        //   },
-        //   data: {
-        //     latestMessageId: messageId,
-        //     participants: {
-        //       update: {
-        //         where: {
-        //           id: participant.id,
-        //         },
-        //         data: {
-        //           hasSeenLatestMessage: true,
-        //         },
-        //       },
-        //       updateMany: {
-        //         where: {
-        //           NOT: {
-        //             userId: senderId,
-        //           },
-        //         },
-        //         data: {
-        //           hasSeenLatestMessage: false,
-        //         },
-        //       },
-        //     },
-        //   },
-        //   include: conversationPopulated,
-        // });
+        const conversation = await prisma.conversation.update({
+          where: {
+            id: conversationId,
+          },
+          data: {
+            latestMessageId: newMessage.id,
+            participants: {
+              update: {
+                where: {
+                  id: participantId,
+                },
+                data: {
+                  hasSeenLatestMessage: true,
+                },
+              },
+              updateMany: {
+                where: {
+                  NOT: {
+                    userId,
+                  },
+                },
+                data: {
+                  hasSeenLatestMessage: false,
+                },
+              },
+            },
+          },
+          include: conversationPopulated,
+        });
+
+        console.log('conversation from message.ts', conversation);
 
         //publish message to conversation
         pubsub.publish('MESSAGE_SENT', { messageSent: newMessage });
-        // pubsub.publish('CONVERSATION_UPDATED', { conversationUpdated: conversation });
+        pubsub.publish('CONVERSATION_UPDATED', {
+          conversationUpdated: {
+            conversation,
+          },
+        });
       } catch (err: any) {
         console.log('send message err', err);
         throw new GraphQLError(err?.message);

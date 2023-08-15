@@ -11,6 +11,9 @@ const typeDefs = gql`
   type CreateConversationResponse {
     conversationId: String
   }
+  type ConversationUdatedSubscriptionPayload {
+    conversation: Conversation
+  }
   type Conversation {
     id: String
     latestMessage: Message
@@ -30,6 +33,9 @@ const typeDefs = gql`
 
   type Subscription {
     conversationCreated: Conversation
+  }
+  type Subscription {
+    conversationUpdated: ConversationUdatedSubscriptionPayload
   }
 `;
 
