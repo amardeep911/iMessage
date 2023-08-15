@@ -29,21 +29,16 @@ const Messages: React.FC<MessageProp> = ({ userId, conversationId }) => {
     },
   });
 
-  const subscribeToNewMessage = (conversationId: string) => {
-    subscribeToMore({
+  const subscribeToMoreMessages = (conversationId: string) => {
+    return subscribeToMore({
       document: MessageOperation.Subscription.messageSent,
       variables: {
         conversationId,
       },
-
       updateQuery: (prev, { subscriptionData }: MessageSubscriptionData) => {
         if (!subscriptionData.data) return prev;
-        console.log('here is subscription data', subscriptionData.data);
-        const newMessage = subscriptionData.data.messageSent;
 
-        if (prev.messages.find(message => message.id === newMessage.id)) {
-          return prev;
-        }
+        const newMessage = subscriptionData.data.messageSent;
 
         return Object.assign({}, prev, {
           messages:
@@ -56,7 +51,9 @@ const Messages: React.FC<MessageProp> = ({ userId, conversationId }) => {
   };
 
   useEffect(() => {
-    subscribeToNewMessage(conversationId);
+    const unSubscribe = subscribeToMoreMessages(conversationId);
+
+    return () => unSubscribe();
   }, [conversationId]);
 
   if (error) {
