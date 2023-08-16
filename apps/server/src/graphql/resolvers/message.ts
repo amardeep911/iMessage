@@ -133,7 +133,7 @@ const resolvers = {
               updateMany: {
                 where: {
                   NOT: {
-                    userId: senderId,
+                    userId,
                   },
                 },
                 data: {
@@ -150,11 +150,11 @@ const resolvers = {
         pubsub.publish('CONVERSATION_UPDATED', {
           conversationUpdated: { conversation },
         });
-        return true;
       } catch (err: any) {
         console.log('send message err', err);
         throw new GraphQLError(err?.message);
       }
+      return true;
     },
   },
   Subscription: {

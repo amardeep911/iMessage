@@ -1,6 +1,7 @@
 import { GraphQLError } from 'graphql';
 import { withFilter } from 'graphql-subscriptions';
 import { Prisma } from 'prisma/prisma-client';
+import { userIsConversationParticipant } from '../../../util/function';
 import {
   ConversationPopulated,
   ConversationUpdatedSubscriptionGetPayload,
@@ -173,14 +174,14 @@ const resolvers = {
 
           console.log('payload from conversation Created', payload);
 
-          const userIsParticipant = !!participants.find(
-            (p: any) => p.user.id === session?.user?.id
-          );
-
-          // const userIsParticipant = userIsConversationParticipant(
-          //   participants,
-          //   session.user.id
+          // const userIsParticipant = !!participants.find(
+          //   (p: any) => p.user.id === session?.user?.id
           // );
+
+          const userIsParticipant = userIsConversationParticipant(
+            participants,
+            session.user.id
+          );
           return userIsParticipant;
         }
       ),
