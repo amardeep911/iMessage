@@ -204,12 +204,13 @@ const resolvers = {
           }
 
           const { id: userId } = session.user;
-          console.log('payload from conversation.ts', payload);
+
           const {
             conversationUpdated: {
               conversation: { participants },
             },
           } = payload;
+          console.log('payload from conversation.ts', payload);
 
           // const userIsParticipant = userIsConversationParticipant(
           //   participants,

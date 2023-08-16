@@ -144,16 +144,17 @@ const resolvers = {
           },
           include: conversationPopulated,
         });
-
+        console.log('conversation from message.ts', conversation);
         //publish message to conversation
         pubsub.publish('MESSAGE_SENT', { messageSent: newMessage });
-        // pubsub.publish('CONVERSATION_UPDATED', { conversationUpdated: conversation });
+        pubsub.publish('CONVERSATION_UPDATED', {
+          conversationUpdated: { conversation },
+        });
+        return true;
       } catch (err: any) {
         console.log('send message err', err);
         throw new GraphQLError(err?.message);
       }
-
-      return true;
     },
   },
   Subscription: {

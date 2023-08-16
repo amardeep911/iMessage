@@ -36,8 +36,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
         conversationId,
       };
 
-      setmessageBody('');
-
       const { data, errors } = await sendMessage({
         variables: {
           ...newMessage,
@@ -46,6 +44,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
           sendMessage: true,
         },
         update: cache => {
+          setmessageBody('');
           const existing = cache.readQuery<MessageData>({
             query: MessageOperation.Query.messages,
             variables: {
@@ -81,8 +80,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
       });
 
       if (!data?.sendMessage || errors) {
-        toast.error('Message was not sent');
-        return;
+        throw new Error('Failed to send message');
       }
     } catch (err: any) {
       console.log(err);
