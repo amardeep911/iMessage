@@ -3,13 +3,56 @@
   "globalDependencies": ["**/.env.*local"],
   "pipeline": {
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+      "cache": true,
+      "dependsOn": ["build:client", "build:server"]
+    },
+    "build:client": {
+      "outputs": [".next/**", "!.next/cache/**"],
+      "inputs": ["client/**", "client/next.config.js", "client/package.json"]
+    },
+    "build:server": {
+      "outputs": ["server/dist/**"],
+      "inputs": ["server/src/**", "server/tsconfig.json", "server/package.json"]
     },
 
-    "dev": {
-      "cache": false
+    "start:server": {
+      "dependsOn": ["build:server"],
+      "inputs": ["server/dist/**", "server/package.json"],
+      "outputs": ["dist/**"]
     },
-    "test": {}
+    "start:client": {
+      "dependsOn": ["build:client"],
+      "inputs": ["client/.next/**", "client/package.json"],
+      "outputs": [".next/**"]
+    },
+    "start": {
+      "dependsOn": ["start:client", "start:server"]
+    },
+    "prisma": {
+      "dependsOn": ["^generate-prisma-types"]
+    },
+    "dev": {
+      "cache": false,
+      "dependsOn": ["dev:client", "dev:server"]
+    },
+    "dev:client": {
+      "cache": false,
+      "inputs": [
+        "client/src/**",
+        "client/next.config.js",
+        "client/package.json"
+      ]
+    },
+    "dev:server": {
+      "cache": false,
+      "inputs": ["server/src/**", "server/tsconfig.json", "server/package.json"]
+    },
+    "lint": {
+      "dependsOn": ["lint:client"]
+    },
+    "lint:client": {
+      "inputs": ["client/src/**", "client/package.json"]
+    }
   }
 }
