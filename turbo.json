@@ -17,12 +17,12 @@
     },
 
     "start:server": {
-      "dependsOn": ["build:server"],
+      "dependsOn": ["^build:server"],
       "inputs": ["server/dist/**", "server/package.json"],
       "outputs": ["dist/**"]
     },
     "start:client": {
-      "dependsOn": ["build:client"],
+      "dependsOn": ["^build:client"],
       "inputs": ["client/.next/**", "client/package.json"],
       "outputs": [".next/**"]
     },
