@@ -6,8 +6,7 @@
     "dev": "cross-env NODE_OPTIONS='--inspect' next dev",
     "test": "echo \"client test running\"",
     "build": "next build",
-    "start": "next start",
-    "lint": "eslint src --fix"
+    "start": "next start"
   },
   "dependencies": {
     "@apollo/client": "^3.7.17",
