@@ -4,7 +4,7 @@
   "pipeline": {
     "build": {
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
-      "cache": true,
+      "cache": false,
       "dependsOn": ["build:client", "build:server"]
     },
     "build:client": {
